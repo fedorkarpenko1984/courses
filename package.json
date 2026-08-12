@@ -1,0 +1,25 @@
+{
+  "name": "courses",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:backend": "pnpm dev --filter=@repo/backend",
+    "dev:admin": "pnpm dev --filter=@repo/admin",
+    "dev:front": "pnpm dev --filter=@repo/frontend",
+    "dev:adm+back": "pnpm dev --filter=@repo/backend --filter=@repo/admin",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "clean": "turbo run clean && rm -rf node_modules .turbo"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

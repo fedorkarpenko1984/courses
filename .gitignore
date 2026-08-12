@@ -1,0 +1,125 @@
+# ====== СИСТЕМНЫЕ ФАЙЛЫ ======
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ====== ЗАВИСИМОСТИ И СБОРКА ======
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Директории сборки
+dist/
+build/
+.output/
+.next/
+.nuxt/
+.out/
+
+# ====== TURBOREPO ======
+.turbo/
+turbo-build.log
+
+# ====== NUXT ======
+.nuxt/
+.nitro/
+.output/
+dist/
+sw.*
+*.sw?
+*.un~
+*.old
+*.bak
+*.swp
+*.swo
+
+# ====== VUE ======
+*.log
+*.local
+.env.local
+.env.*.local
+
+# ====== ADONISJS ======
+tmp/
+storage/
+public/assets
+ace-manifest.json
+
+# ====== БАЗЫ ДАННЫХ ======
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+
+# ====== ПЕРЕМЕННЫЕ ОКРУЖЕНИЯ ======
+.env
+.env.*
+!.env.example
+!.env.test
+
+# ====== IDE ======
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+
+# ====== ТЕСТЫ И ПОКРЫТИЕ ======
+coverage/
+.nyc_output/
+*.lcov
+
+# ====== ЛОГИ ======
+*.log
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ====== ДОКУМЕНТАЦИЯ ======
+docs/_book/
+docs/_build/
+site/
+
+# ====== ПРОЧЕЕ ======
+.DS_Store
+*.pem
+*.tgz
+*.gz
+*.tar
+*.zip
+
+# ====== DOCKER ======
+docker-compose.override.yml
+docker-compose.prod.yml
+
+# ====== ВРЕМЕННЫЕ ФАЙЛЫ ======
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ====== РАЗНОЕ ======
+.cache/
+.vercel
+.vercel_build
+*.eslintcache
+*.stylelintcache
+*.tsbuildinfo
