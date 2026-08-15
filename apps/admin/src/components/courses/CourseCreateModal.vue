@@ -28,19 +28,19 @@
 </template>
 
 <script setup lang="ts">
-import { $fetch, getAuthHeader } from '@/helpers/myFetch';
+import { $fetch } from '@/helpers/myFetch';
 import type { ICourse } from '@repo/types';
-import { shallowRef, inject, onMounted } from 'vue';
+import { shallowRef } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import CloseIcon from '@/icons/CloseIcon.vue';
-import type { TNotification } from '@/types/notifications';
+import { useNotificationsStore } from '@/stores/notificationsStore';
 
 const emit = defineEmits<{
   (e: 'close'): void,
   (e: 'update:courses'): void
 }>()
 
-const addNotification: (notification: TNotification) => {} = inject('addNotification')!
+const { addNotification } = useNotificationsStore()
 
 const title = shallowRef<string>('')
 const description = shallowRef<string>('')
@@ -62,6 +62,8 @@ const createCourse = async () => {
       message: 'Новый конкурс успешно создан!',
       type: 'success'
     })
+    title.value = ''
+    description.value = ''
   }
 }
 </script>

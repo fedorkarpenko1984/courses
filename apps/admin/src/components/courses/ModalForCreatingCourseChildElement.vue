@@ -40,15 +40,28 @@ const createModalTitle = computed<string>(() => {
   if (props.type === 'chapter') {
     return 'Введите название нового раздела'
   }
+  if (props.type === 'subchapter') {
+    return 'Введите название нового подраздела'
+  }
+  if (props.type === 'lesson') {
+    return 'Введите название нового урока'
+  }
+  return ''
 })
 
 const emit = defineEmits<{
-  (e: 'add:chapter', payload: string): void,
+  (e: 'add:chapter', payload: string): void
+  (e: 'add:subchapter', payload: string): void
 }>()
 
 const addEntity = () => {
   if (props.type === 'chapter') {
     emit('add:chapter', createModalInput.value)
+    createModalInput.value = ''
+  }
+  if (props.type === 'subchapter') {
+    emit('add:subchapter', createModalInput.value)
+    createModalInput.value = ''
   }
 }
 </script>

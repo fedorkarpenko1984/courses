@@ -1,0 +1,1 @@
+export type TCourseChildEntity = 'chapter' | 'subchapter' | 'lesson'

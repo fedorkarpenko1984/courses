@@ -33,5 +33,13 @@ interface IChapterBasic {
 }
 
 export interface IChapter extends IChapterBasic{
-  children: string
+  children: string[]
+}
+
+export interface IChapterStructure extends IChapterBasic{
+  children: ISubchapter[]
+}
+
+export interface ISubchapter extends IChapterBasic{
+  lessons: number[]
 }

@@ -90,3 +90,47 @@ export class CourseSchema extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 }
+
+export class LessonSchema extends BaseModel {
+  static $columns = ['chapterId', 'courseId', 'createdAt', 'data', 'id', 'isPublished', 'subchapterId', 'title', 'updatedAt'] as const
+  $columns = LessonSchema.$columns
+  @column()
+  declare chapterId: number
+  @column()
+  declare courseId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column()
+  declare data: any | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isPublished: boolean | null
+  @column()
+  declare subchapterId: number | null
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
+
+export class SubchapterSchema extends BaseModel {
+  static $columns = ['chapterId', 'courseId', 'createdAt', 'id', 'isPublished', 'lessons', 'title', 'updatedAt'] as const
+  $columns = SubchapterSchema.$columns
+  @column()
+  declare chapterId: number
+  @column()
+  declare courseId: number
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+  @column({ isPrimary: true })
+  declare id: number
+  @column()
+  declare isPublished: boolean | null
+  @column()
+  declare lessons: any | null
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}

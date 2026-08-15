@@ -10,4 +10,6 @@ export const controllers = {
   Course: () => import('#controllers/course_controller'),
   NewAccount: () => import('#controllers/new_account_controller'),
   Profile: () => import('#controllers/profile_controller'),
+  Subchapter: () => import('#controllers/subchapter_controller'),
+  Lessons: () => import('#controllers/lessons_controller'),
 }

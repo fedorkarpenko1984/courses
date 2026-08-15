@@ -4,6 +4,7 @@
     :data-source="formatedCourses"
     :pagination="false"
     :customRow="handleCustomRow"
+    rowClassName="table-row"
   >
     <template #headerCell="{ column }">
       <template v-if="column.key === 'title'">
@@ -23,12 +24,6 @@
 
       <template v-else-if="column.key === 'controls'">
         <div class="controls" @click.stop>
-          <div
-            style="color: lightseagreen"
-            @click="emit('edit', record.id)"
-          >
-            <EditFilled />
-          </div>
           <div
             style="color: red"
             @click="emit('delete', {
@@ -85,8 +80,11 @@ interface ICourseInTable {
 
 const handleCustomRow = (record: ICourseInTable) => {
   return {
+    style: {
+      cursor: 'pointer'
+    },
     onClick: () => {
-      console.log('Переход на страницу конкурса ', record)
+      emit('edit', record.id)
     },
   }
 }
@@ -101,11 +99,4 @@ const formatedCourses = computed<ICourseInTable[]>(() => {
 </script>
 
 <style scoped lang="scss">
-.controls {
-  display: flex;
-  gap: 12px;
-  & > * {
-    cursor: pointer;
-  }
-}
 </style>

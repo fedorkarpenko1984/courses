@@ -48,12 +48,6 @@ const routes = {
     tokens: [{"old":"/admin/course/:id","type":0,"val":"admin","end":""},{"old":"/admin/course/:id","type":0,"val":"course","end":""},{"old":"/admin/course/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['course.destroy']['types'],
   },
-  'chapters.index': {
-    methods: ["GET","HEAD"],
-    pattern: '/admin/chapter',
-    tokens: [{"old":"/admin/chapter","type":0,"val":"admin","end":""},{"old":"/admin/chapter","type":0,"val":"chapter","end":""}],
-    types: placeholder as Registry['chapters.index']['types'],
-  },
   'chapters.show': {
     methods: ["GET","HEAD"],
     pattern: '/admin/chapter/:id',
@@ -77,6 +71,24 @@ const routes = {
     pattern: '/admin/chapter/:id',
     tokens: [{"old":"/admin/chapter/:id","type":0,"val":"admin","end":""},{"old":"/admin/chapter/:id","type":0,"val":"chapter","end":""},{"old":"/admin/chapter/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['chapters.destroy']['types'],
+  },
+  'subchapter.store': {
+    methods: ["POST"],
+    pattern: '/admin/subchapter',
+    tokens: [{"old":"/admin/subchapter","type":0,"val":"admin","end":""},{"old":"/admin/subchapter","type":0,"val":"subchapter","end":""}],
+    types: placeholder as Registry['subchapter.store']['types'],
+  },
+  'subchapter.update': {
+    methods: ["PUT"],
+    pattern: '/admin/subchapter/:id',
+    tokens: [{"old":"/admin/subchapter/:id","type":0,"val":"admin","end":""},{"old":"/admin/subchapter/:id","type":0,"val":"subchapter","end":""},{"old":"/admin/subchapter/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['subchapter.update']['types'],
+  },
+  'subchapter.destroy': {
+    methods: ["DELETE"],
+    pattern: '/admin/subchapter/:id',
+    tokens: [{"old":"/admin/subchapter/:id","type":0,"val":"admin","end":""},{"old":"/admin/subchapter/:id","type":0,"val":"subchapter","end":""},{"old":"/admin/subchapter/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['subchapter.destroy']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 

@@ -21,29 +21,14 @@
 </template>
 
 <script setup lang="ts">
-import { provide, ref } from 'vue';
+import { ref } from 'vue';
 import SidebarNavigation from '@/components/layouts/SidebarNavigation.vue';
-import type { TNotification } from '@/types/notifications';
+import { useNotificationsStore } from '@/stores/notificationsStore';
 
 const collapsed = ref<boolean>(false)
 
-const notifications = ref<TNotification[]>([])
+const { notifications } = useNotificationsStore()
 
-const addNotification = (notification: TNotification) => {
-  const id = Date.now().toString() + Math.random()
-  notifications.value.push({
-    ...notification,
-    id
-  })
-  setTimeout(() => {
-    const index = notifications.value.findIndex(n => n.id === id)
-    if (index !== -1) {
-      notifications.value.splice(index, 1)
-    }
-  }, 5000)
-}
-
-provide('addNotification', addNotification)
 </script>
 
 <style lang="scss">

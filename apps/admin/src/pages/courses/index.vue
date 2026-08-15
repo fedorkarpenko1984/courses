@@ -52,7 +52,9 @@ import CourseCreateModal from '@/components/courses/CourseCreateModal.vue';
 import CoursesTable from '@/components/courses/CoursesTable.vue';
 import type { TNotification } from '@/types/notifications';
 import { useRouter } from 'vue-router';
+import { useNotificationsStore } from '@/stores/notificationsStore';
 
+const { addNotification } = useNotificationsStore()
 const router = useRouter()
 
 const courses = ref<ICourse[]>([])
@@ -61,8 +63,6 @@ const isCreateModalOpen = ref<boolean>(false)
 const isDeleteModalOpen = ref<boolean>(false)
 
 const textInDeletionModal = ref<string>('')
-
-const addNotification: (notification: TNotification) => {} = inject('addNotification')!
 
 onMounted(async () => {
   getCourses()

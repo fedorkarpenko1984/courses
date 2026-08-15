@@ -3,6 +3,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Course from '#models/course'
 import { createCourseValidator, updateCourseValidator } from '#validators/course'
 import Chapter from '#models/chapter'
+import Subchapter from '#models/subchapter'
 
 export default class CoursesController {
 
@@ -14,14 +15,20 @@ export default class CoursesController {
   async getCourse({ params, response }: HttpContext) {
     try {
       const course = await Course.findOrFail(params.id)
-      const query = Chapter.query()
+      const queryChapters = Chapter.query()
           
-      query.where('courseId', course.id)
-      const chapters = await query
+      queryChapters.where('courseId', course.id)
+      const chapters = await queryChapters
+
+      const querySubchapters = Subchapter.query()
+      querySubchapters.where('courseId', course.id)
+
+      const subchapters = await querySubchapters
 
       return response.ok({
         course,
-        chapters
+        chapters,
+        subchapters
       })
     } catch (error) {
       return response.notFound({
@@ -63,17 +70,14 @@ export default class CoursesController {
       
       const data = await request.validateUsing(updateCourseValidator)
       
-      console.log('data', data);
       course.merge({
         ...data,
         previewImage: data.previewImage ?? course.previewImage,
       })
-      console.log('course', course)
       await course.save()
       
       return response.ok(course)
     } catch (error:any) {
-      console.log('error', error)
       if (error.code === 'E_ROW_NOT_FOUND') {
         return response.notFound({
           message: 'Курс не найден'
@@ -92,15 +96,8 @@ export default class CoursesController {
 
   async destroy({ params, response, auth }: HttpContext) {
     try {
-      const admin = auth.getUserOrFail()
       const course = await Course.findOrFail(params.id)
-      
-      if (course.author !== admin.login) {
-        return response.forbidden({
-          message: 'Вы не можете удалить этот курс'
-        })
-      }
-      
+
       await course.delete()
       
       return response.ok({

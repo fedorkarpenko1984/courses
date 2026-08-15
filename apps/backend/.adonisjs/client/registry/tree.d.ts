@@ -14,10 +14,14 @@ export interface ApiDefinition {
     destroy: typeof routes['course.destroy']
   }
   chapters: {
-    index: typeof routes['chapters.index']
     show: typeof routes['chapters.show']
     store: typeof routes['chapters.store']
     update: typeof routes['chapters.update']
     destroy: typeof routes['chapters.destroy']
+  }
+  subchapter: {
+    store: typeof routes['subchapter.store']
+    update: typeof routes['subchapter.update']
+    destroy: typeof routes['subchapter.destroy']
   }
 }

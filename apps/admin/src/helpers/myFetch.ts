@@ -1,4 +1,7 @@
 import { useAuthStore } from "@/stores/auth";
+import { useNotificationsStore } from "@/stores/notificationsStore";
+
+const { addNotification } = useNotificationsStore()
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean>;
@@ -89,11 +92,25 @@ class HttpClient {
         statusText: response.statusText,
         headers: response.headers,
       };
-    } catch (error) {
+    } catch (error: any) {
       clearTimeout(timeoutId);
 
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error('Request timeout');
+      }
+
+      if (error instanceof Error && error.name === 'Failed to fetch') {
+        addNotification({
+          message: 'Сервер не доступен',
+          type: 'error'
+        })
+      }
+      if (error instanceof Error && error.message.includes('Bad Request')) {
+        console.log('error', error)
+        addNotification({
+          message: 'Некорректный запрос',
+          type: 'error'
+        })
       }
 
       throw error;

@@ -91,18 +91,6 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/course_controller').default['destroy']>>>
     }
   }
-  'chapters.index': {
-    methods: ["GET","HEAD"]
-    pattern: '/admin/chapter'
-    types: {
-      body: {}
-      paramsTuple: []
-      params: {}
-      query: {}
-      response: ExtractResponse<Awaited<ReturnType<import('#controllers/chapters_controller').default['index']>>>
-      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/chapters_controller').default['index']>>>
-    }
-  }
   'chapters.show': {
     methods: ["GET","HEAD"]
     pattern: '/admin/chapter/:id'
@@ -149,6 +137,42 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/chapters_controller').default['destroy']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/chapters_controller').default['destroy']>>>
+    }
+  }
+  'subchapter.store': {
+    methods: ["POST"]
+    pattern: '/admin/subchapter'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/subchapter').createSubchapterValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/subchapter').createSubchapterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'subchapter.update': {
+    methods: ["PUT"]
+    pattern: '/admin/subchapter/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/subchapter').updateSubchapterValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/subchapter').updateSubchapterValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'subchapter.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/subchapter/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['destroy']>>>
     }
   }
 }

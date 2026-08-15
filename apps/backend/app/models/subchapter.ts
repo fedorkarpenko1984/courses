@@ -1,7 +1,11 @@
+// app/models/subchapter.ts
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import Course from '#models/course'
+import Chapter from '#models/chapter'
 
-export default class Chapter extends BaseModel {
+export default class Subchapter extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -9,43 +13,37 @@ export default class Chapter extends BaseModel {
   declare courseId: number
 
   @column()
+  declare chapterId: number
+
+  @column()
   declare title: string
 
   @column({
     prepare: (value: any) => {
-      if (value === null || value === undefined) {
-        return '[]'
-      }
-      
-      if (Array.isArray(value)) {
-        return JSON.stringify(value)
-      }
-      
+      if (!value) return '[]'
       if (typeof value === 'string') {
         try {
           JSON.parse(value)
           return value
         } catch {
-          return JSON.stringify([value])
+          return JSON.stringify(value)
         }
       }
-      return JSON.stringify([value])
+      return JSON.stringify(value)
     },
     consume: (value: any) => {
       if (!value) return []
-      if (Array.isArray(value)) return value
       if (typeof value === 'string') {
         try {
-          const parsed = JSON.parse(value)
-          return Array.isArray(parsed) ? parsed : []
+          return JSON.parse(value)
         } catch {
           return []
         }
       }
-      return []
+      return value
     }
   })
-  declare children: string[]
+  declare lessons: number[]
 
   @column()
   declare isPublished: boolean
@@ -55,4 +53,12 @@ export default class Chapter extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  // Связь с курсом
+  @belongsTo(() => Course)
+  declare course: BelongsTo<typeof Course>
+
+  // Связь с главой
+  @belongsTo(() => Chapter)
+  declare chapter: BelongsTo<typeof Chapter>
 }

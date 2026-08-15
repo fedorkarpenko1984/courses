@@ -32,7 +32,6 @@ export default class ChaptersController {
     
     const chapter = await Chapter.create(data)
     const currentCourseChapters = Array.isArray(course.chapters) ? course.chapters : []
-    console.log('typeof buffer', currentCourseChapters)
 
     course.merge({
       ...course,
@@ -60,6 +59,22 @@ export default class ChaptersController {
 
   async destroy({ params, response }: HttpContext) {
     const chapter = await Chapter.findOrFail(params.id)
+
+    const course = await Course.findOrFail(chapter.courseId)
+    const currentCourseChapters = Array.isArray(course.chapters) ? course.chapters : []
+    const chapterIndex = currentCourseChapters.findIndex(i => i === chapter.id)
+    console.log('chapterId', chapter.id)
+    console.log('chapterIndex', chapterIndex)
+    currentCourseChapters.splice(chapterIndex, 1)
+
+    console.log('currentCourseChapters', currentCourseChapters)
+
+    course.merge({
+      ...course,
+      chapters: [...currentCourseChapters]
+    })
+    course.save()
+
     await chapter.delete()
     
     return response.status(204)

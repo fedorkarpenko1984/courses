@@ -20,14 +20,23 @@ router.group(() => {
     })
     .prefix('course')
     .use(middleware.auth({ guards: ['admin'] }))
+
   router  
     .group(() => {      
-      router.get('/', [controllers.Chapters, 'index'])
       router.get('/:id', [controllers.Chapters, 'show'])
       router.post('/', [controllers.Chapters, 'store'])
       router.put('/:id', [controllers.Chapters, 'update'])
       router.delete('/:id', [controllers.Chapters, 'destroy'])
     })
     .prefix('chapter')
+    .use(middleware.auth({ guards: ['admin'] }))
+
+  router  
+    .group(() => {      
+      router.post('/', [controllers.Subchapter, 'store'])
+      router.put('/:id', [controllers.Subchapter, 'update'])
+      router.delete('/:id', [controllers.Subchapter, 'destroy'])
+    })
+    .prefix('subchapter')
     .use(middleware.auth({ guards: ['admin'] }))
 }).prefix('admin')

@@ -1,49 +1,34 @@
 <template>
   <div class="course-structure-chapter">
     <div class="course-structure-chapter__prefix">
-      раздел
+      подраздел
     </div>
     <div class="course-structure-chapter__content">
-      {{ chapter.title }}
+      {{ title }}
       <div
         class="status"
-        :style="`background: ${ chapter.isPublished ? 'rgb(101, 233, 134)' : 'grey'}`"
+        :style="`background: ${isPublished ? 'rgb(101, 233, 134)' : 'grey'}`"
       >
-        {{ `${ chapter.isPublished ? '' : 'не'}опубликован` }}
+        {{ `${isPublished ? '' : 'не'}опубликован` }}
       </div>
       <div class="controls" @click.stop>
         <div
           style="color: lightseagreen"
-          @click="emit('edit:chapter', { id: chapter.id })"
+          @click="emit('edit:subchapter', { id })"
         >
           <EditFilled />
         </div>
         <div
           style="color: red"
-          @click="emit('delete:chapter', { id: chapter.id })"
+          @click="emit('delete:subchapter', { id })"
         >
           <DeleteOutlined />
         </div>
       </div>
     </div>
-    <VueDraggable
-      v-model="chapterStructure"
-      :animation="150"
-      class="course-structure-chapter__children"
-    >
-      <slot :chapterStructure="chapterStructure" name="children" />
-    </VueDraggable>
+      <slot />
     <div class="actions">
-      <div
-        class="add-subchapter"
-        @click="emit('create:subchapter')"
-      >
-        <div class="add-subchapter__text">добавить подраздел</div>
-      </div>
-      <div
-        class="add-lesson"
-        @click="emit('create:lesson')"
-      >
+      <div class="add-lesson">
         <div class="add-lesson__text">добавить урок</div>
       </div>
     </div>
@@ -51,33 +36,18 @@
 </template>
 
 <script lang="ts" setup>
-import type { IChapter, ISubchapter } from '@repo/types';
+import type { IChapter } from '@repo/types';
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue';
-import { onMounted, ref } from 'vue';
-import { VueDraggable } from 'vue-draggable-plus'
-
 const props = defineProps<{
-  chapter: IChapter
-  subchapters: ISubchapter[]
+  id: number,
+  title: string,
+  chapterId?: number,
+  isPublished: boolean,
 }>()
 
-const chapterStructure = ref<ISubchapter[]>([])
-
-onMounted(() => {
-  props.chapter.children.forEach(child => {
-    console.log('child', child)
-    if (child.startsWith('sub')) {
-      console.log(child.slice(3))
-      const currentSubchapter = props.subchapters.find(sub => sub.id === Number(child.slice(3)))!
-      chapterStructure.value.push(currentSubchapter)
-    }
-  })
-})
-
 const emit = defineEmits<{
-  (e: 'delete:chapter', payload: { id: number, chapterId?: number }): void
-  (e: 'edit:chapter', payload: { id: number, chapterId?: number }): void
-  (e: 'create:subchapter'): void
+  (e: 'delete:subchapter', payload: { id: number, chapterId?: number }): void
+  (e: 'edit:subchapter', payload: { id: number, chapterId?: number }): void
   (e: 'create:lesson'): void
 }>()
 </script>
@@ -87,17 +57,12 @@ const emit = defineEmits<{
   width: 600px;
   position: relative;
 
-  &__children {
-    margin-top: 12px;
-    padding-left: 100px;
-  }
-
   &__content {
     display: flex;
     align-items: center;
-    height: 50px;
-    font-size: 20px;
-    border: 1px solid rgb(219, 219, 219);
+    height: 42px;
+    font-size: 18px;
+    border: 1px solid rgb(204, 204, 204);
     padding: 0 16px;
     border-radius: 6px;
     position: relative;
@@ -133,7 +98,7 @@ const emit = defineEmits<{
     z-index: 1;
     color:grey;
   }
-  .add-subchapter, .add-lesson {
+  .add-lesson {
     position: relative;
     font-size: 12px;
     margin-top: 4px;
@@ -148,7 +113,7 @@ const emit = defineEmits<{
   }
   .actions {
     position: absolute;
-    top: 0;
+    top: 8px;
     right: 0;
     transform: translateX(100%);
   }
