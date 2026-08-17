@@ -23,7 +23,7 @@ export interface ICourse {
   updatedAt?: Date
 }
 
-interface IChapterBasic {
+interface ICourseChildBasic {
   id: number
   courseId: number
   title: string
@@ -32,14 +32,17 @@ interface IChapterBasic {
   updatedAt?: Date
 }
 
-export interface IChapter extends IChapterBasic{
+export interface IChapter extends ICourseChildBasic{
   children: string[]
 }
 
-export interface IChapterStructure extends IChapterBasic{
-  children: ISubchapter[]
+export interface ISubchapter extends ICourseChildBasic{
+  lessons: number[]
+  chapterId: number
 }
 
-export interface ISubchapter extends IChapterBasic{
-  lessons: number[]
+export interface ILesson extends ICourseChildBasic {
+  chapterId: number
+  subchapterId?: number
+  data: string
 }

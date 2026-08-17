@@ -51,45 +51,71 @@
 </template>
 
 <script lang="ts" setup>
-import type { IChapter, ISubchapter } from '@repo/types';
+import type { IChapter, ILesson, ISubchapter } from '@repo/types';
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus'
+
+interface ISubchapterAdmin extends ISubchapter {
+  type: 'subchapter'
+}
+
+interface ILessonAdmin extends ILesson {
+  type: 'lesson'
+}
 
 const props = defineProps<{
   chapter: IChapter
-  subchapters: ISubchapter[]
+  subchapters: ISubchapter[],
+  lessons: ILesson[]
 }>()
 
-const chapterStructure = ref<ISubchapter[]>([])
+const chapterStructure = ref<Array<ISubchapterAdmin | ILessonAdmin>>([])
 
-onMounted(() => {
+function setChapterStructure() {
+  const newChapterStructure: Array<ISubchapterAdmin | ILessonAdmin> = []
   props.chapter.children.forEach(child => {
-    console.log('child', child)
     if (child.startsWith('sub')) {
-      console.log(child.slice(3))
       const currentSubchapter = props.subchapters.find(sub => sub.id === Number(child.slice(3)))!
-      chapterStructure.value.push(currentSubchapter)
+      newChapterStructure.push({...currentSubchapter, type: 'subchapter'})
+    }
+    if (child.startsWith('les')) {
+      const currentLesson = props.lessons.find(lesson => lesson.id === Number(child.slice(3)))!
+      newChapterStructure.push({ ...currentLesson, type: 'lesson'})
     }
   })
+  chapterStructure.value = [...newChapterStructure]
+}
+
+onMounted(() => {
+  setChapterStructure()
 })
 
 const emit = defineEmits<{
-  (e: 'delete:chapter', payload: { id: number, chapterId?: number }): void
+  (e: 'delete:chapter', payload: { id: number }): void
   (e: 'edit:chapter', payload: { id: number, chapterId?: number }): void
   (e: 'create:subchapter'): void
   (e: 'create:lesson'): void
 }>()
+
+watch(props, (newProps) => {
+  console.log('newProps', newProps)
+  setChapterStructure()
+})
 </script>
 
 <style scoped lang="scss">
+
 .course-structure-chapter {
-  width: 600px;
+  width: 700px;
   position: relative;
 
   &__children {
     margin-top: 12px;
     padding-left: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
   &__content {
@@ -126,12 +152,15 @@ const emit = defineEmits<{
   &__prefix {
     position: absolute;
     left: 16px;
-    top: -10px;
-    font-size: 16px;
+    top: -8px;
+    font-size: 12px;
     background: white;
-    padding: 0 4px;
+    padding: 1px 6px;
+    text-transform: uppercase;
     z-index: 1;
     color:grey;
+    border: 1px solid #aaa;
+    border-radius: 4px;
   }
   .add-subchapter, .add-lesson {
     position: relative;

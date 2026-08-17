@@ -39,4 +39,13 @@ router.group(() => {
     })
     .prefix('subchapter')
     .use(middleware.auth({ guards: ['admin'] }))
+
+  router  
+    .group(() => {      
+      router.post('/', [controllers.Lessons, 'store'])
+      router.put('/:id', [controllers.Lessons, 'update'])
+      router.delete('/:id', [controllers.Lessons, 'destroy'])
+    })
+    .prefix('lesson')
+    .use(middleware.auth({ guards: ['admin'] }))
 }).prefix('admin')

@@ -32,8 +32,9 @@
             :key="chapter.id"
             :chapter="chapter"
             :subchapters="courseSubchapters"
-            @edit:chapter="openEditModal"
-            @delete:chapter="openDeleteModal"
+            :lessons="courseLessons"
+            @edit:chapter="openEditModal('chapter', { chapterId: chapter.id })"
+            @delete:chapter="openDeleteModal('chapter', { chapterId: chapter.id })"
             @create:subchapter="openCreateModal('subchapter', { chapterId: chapter.id })"
             @create:lesson="openCreateModal('lesson', { chapterId: chapter.id })"
           >
@@ -43,10 +44,15 @@
                 :key="child.id"
               >
                 <CourseStructureSubchapter
-                  v-if="child.lessons"
-                  :id="child.id"
-                  :title="child.title"
-                  :is-published="child.isPublished"
+                  v-if="child.type === 'subchapter'"
+                  :subchapter="child"
+                  @edit:subchapter="openEditModal('subchapter', { chapterId: chapter.id, subchapterId: child.id })"
+                  @delete:subchapter="openDeleteModal('subchapter', { chapterId: chapter.id, subchapterId: child.id })"
+                />
+                <CourseStructureLesson
+                  v-if="child.type === 'lesson'"
+                  :lesson="child"
+                  @edit:lesson="router.push(`/courses/lesson/${child.id}`)"
                 />
               </div>
             </template>
@@ -66,25 +72,28 @@
       :type="createModalType"
       @add:chapter="addChapterToCourseWrapper"
       @add:subchapter="createSubchapterWrapper"
+      @add:lesson="createLessonWrapper"
     />
     <ModalForEditCourseChildElement
       v-model="isEditModalOpen"
       :entity="entityForEdit"
       :type="entityForEditType"
-      @save:chapter="saveChapter"
+      @save:chapter="editChapterWrapper"
+      @save:subchapter="editSubchapterWrapper"
     />
     <ModalForDeletingCourseChildElement
       v-model="isDeleteModalOpen"
       :entity="entityForDelete"
       :type="entityForDeleteType"
       @delete:chapter="deleteChapterWrapper"
+      @delete:subchapter="deleteSubchapterWrapper"
     />
   </div>
 </template>
 <script lang="ts" setup>
-import type { IChapter, ICourse, IChapterStructure, ISubchapter } from '@repo/types'
+import type { IChapter, ICourse, IChapterStructure, ISubchapter, ILesson } from '@repo/types'
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { formatDate } from '@/utils'
 import CourseImageInput from '@/components/courses/CourseImageInput.vue'
 import CourseStructureChapter from '@/components/courses/CourseStructureChapter.vue'
@@ -97,7 +106,10 @@ import { useCourse } from '@/composables/courses/useCourse'
 import ModalForDeletingCourseChildElement from '@/components/courses/ModalForDeletingCourseChildElement.vue'
 import { useSubchapters } from '@/composables/courses/useSubchapters'
 import CourseStructureSubchapter from '@/components/courses/CourseStructureSubchapter.vue'
+import { useLessons } from '@/composables/courses/useLessons'
+import CourseStructureLesson from '@/components/courses/CourseStructureLesson.vue'
 
+const router = useRouter()
 const route = useRoute()
 
 const isCourseLoaded = ref<boolean>(false)
@@ -106,10 +118,10 @@ const isCreateModalOpen = ref<boolean>(false)
 const isDeleteModalOpen = ref<boolean>(false)
 const isEditModalOpen = ref<boolean>(false)
 
-const entityForEdit = ref<null | IChapter>(null)
+const entityForEdit = ref<null | IChapter | ISubchapter>(null)
 const entityForEditType = ref<TCourseChildEntity>('chapter')
 
-const entityForDelete = ref<null | IChapter>(null)
+const entityForDelete = ref<null | IChapter | ISubchapter>(null)
 const entityForDeleteType = ref<TCourseChildEntity>('chapter')
 
 const chapterIdForAddChildren = ref<number>(0)
@@ -117,6 +129,7 @@ const chapterIdForAddChildren = ref<number>(0)
 let courseData = ref<ICourse | null>(null);
 
 const courseSubchapters = ref<ISubchapter[]>([])
+const courseLessons = ref<ILesson[]>([])
 
 const courseModel = ref<ICourse>({
   id: 0,
@@ -129,6 +142,14 @@ const courseModel = ref<ICourse>({
   createdAt: undefined
 })
 const courseStructure = ref<IChapter[]>([])
+
+const {
+  getCourse 
+} = useCourse(
+  courseModel,
+  courseStructure,
+  courseData
+)
 
 const {
   addChapterToCourse,
@@ -144,20 +165,24 @@ const {
 )
 
 const {
-  getCourse 
-} = useCourse(
-  courseModel,
+  createSubchapter,
+  editSubchapter,
+  deleteSubchapter
+} = useSubchapters(
   courseStructure,
-  courseData
+  courseSubchapters
 )
 
-const { createSubchapter } = useSubchapters(courseStructure)
+const {
+  createLesson
+} = useLessons()
 
 onMounted(async () => {
   if (route.params.id && typeof route.params.id === 'string') {
     const result = await getCourse(route.params.id)
     console.log(result)
     courseSubchapters.value = result.subchapters
+    courseLessons.value = result.lessons
     isCourseLoaded.value = true
   }
 })
@@ -169,6 +194,7 @@ const courseBirthday = computed<string>(() => {
 type TModalType = 'chapter' | 'subchapter' | 'lesson'
 
 const createModalType = ref<TModalType>('chapter')
+
 const openCreateModal = (
   type: TModalType,
   options?: { chapterId?: number, subchapterId?: number }
@@ -177,8 +203,46 @@ const openCreateModal = (
   isCreateModalOpen.value = true
   if (type !== 'chapter') {
     chapterIdForAddChildren.value = options?.chapterId!
-    console.log('chapterIdForAddChildren', chapterIdForAddChildren.value)
   }
+  if (options?.subchapterId) {
+    console.log('subchapterId', options?.subchapterId)
+  }
+}
+
+const openEditModal = (
+  type: TModalType,
+  options?: { chapterId?: number, subchapterId?: number }
+) => {
+  if (type === 'chapter') {
+    const currentChapter = courseStructure.value.find(chapter => chapter.id === options?.chapterId)
+    entityForEdit.value = currentChapter!
+    entityForEditType.value = 'chapter'
+  }
+  if (type === 'subchapter') {
+    const currentSubchapter = courseSubchapters.value.find(subchapter => subchapter.id === options?.subchapterId)
+    entityForEdit.value = currentSubchapter!
+    entityForEditType.value = 'subchapter'
+  }
+  isEditModalOpen.value = true
+}
+
+const openDeleteModal = (
+  type: TModalType,
+  options?: { chapterId?: number, subchapterId?: number }
+) => {
+  if (type === 'chapter') {
+    const currentChapter = courseStructure.value.find(chapter => chapter.id === options?.chapterId)
+    entityForDeleteType.value = 'chapter'
+    entityForDelete.value = currentChapter!
+    console.log('entityForDelete', entityForDelete)
+  }
+  if (type === 'subchapter') {
+    const subchapter = courseSubchapters.value.find(subchapter => subchapter.id === options?.subchapterId)!
+    entityForDelete.value = subchapter
+    entityForDeleteType.value = 'subchapter'
+  }
+  isDeleteModalOpen.value = true
+
 }
 
 const addChapterToCourseWrapper = async (title: string) => {
@@ -186,36 +250,44 @@ const addChapterToCourseWrapper = async (title: string) => {
   isCreateModalOpen.value = false
 }
 
-const openDeleteModal = (data: { id: number, chapterId?: number }) => {
-  const currentChapter = courseStructure.value.find(chapter => chapter.id === data.id)
-  entityForDelete.value = currentChapter!
-  isDeleteModalOpen.value = true
+const editChapterWrapper = async (newInfo: Pick<IChapter, 'title' | 'isPublished'>) => {
+  if (!entityForEdit.value) return
+  await editChapter(newInfo, entityForEdit.value! as IChapter)
+  isEditModalOpen.value = false
 }
 
 const deleteChapterWrapper = async () => {
+  if (!entityForDelete.value) return
   await deleteChapter(entityForDelete.value?.id!)
   isDeleteModalOpen.value = false
 }
 
-const openEditModal = (data: { id: number, chapterId?: number }) => {
-  const currentChapter = courseStructure.value.find(chapter => chapter.id === data.id)
-  entityForEdit.value = currentChapter!
-  isEditModalOpen.value = true
+
+const createSubchapterWrapper = async (title: string) => {
+  await createSubchapter(courseData.value?.id!, chapterIdForAddChildren.value, title)
+  isCreateModalOpen.value = false
 }
 
-const saveChapter = async (newInfo: Pick<IChapter, 'title' | 'isPublished'>) => {
-  if (!entityForEdit) return
-  await editChapter(newInfo, entityForEdit.value!)
+const editSubchapterWrapper = async (newInfo: Pick<IChapter, 'title' | 'isPublished'>) => {
+  if (!entityForEdit.value) return
+  await editSubchapter({
+    ...entityForEdit.value as ISubchapter,
+    title: newInfo.title,
+    isPublished: newInfo.isPublished
+  })
   isEditModalOpen.value = false
 }
 
-const createSubchapterWrapper = async (title: string) => {
-  console.log(chapterIdForAddChildren.value)
-  console.log(courseData.value?.id)
-  console.log(title)
-  const response = await createSubchapter(courseData.value?.id!, chapterIdForAddChildren.value, title)
-  console.log('createSubchapterWrapper', response)
-  isCreateModalOpen.value = false
+const deleteSubchapterWrapper = async () => {
+  console.log('entityForDelete.value', entityForDelete.value)
+  if (!entityForDelete.value) return
+  await deleteSubchapter(entityForDelete.value as ISubchapter)
+  isDeleteModalOpen.value = false
+}
+
+const createLessonWrapper = async (title: string) => {
+  console.log('chapterIdForAddChildren', chapterIdForAddChildren.value)
+  await createLesson(courseData.value?.id!, chapterIdForAddChildren.value, title)
 }
 </script>
 

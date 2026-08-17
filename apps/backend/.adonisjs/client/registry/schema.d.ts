@@ -175,4 +175,40 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['destroy']>>>
     }
   }
+  'lessons.store': {
+    methods: ["POST"]
+    pattern: '/admin/lesson'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/lesson').createLessonValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/lesson').createLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['store']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['store']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'lessons.update': {
+    methods: ["PUT"]
+    pattern: '/admin/lesson/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/lesson').updateLessonValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/lesson').updateLessonValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'lessons.destroy': {
+    methods: ["DELETE"]
+    pattern: '/admin/lesson/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['destroy']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['destroy']>>>
+    }
+  }
 }

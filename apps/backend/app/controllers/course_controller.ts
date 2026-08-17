@@ -4,6 +4,7 @@ import Course from '#models/course'
 import { createCourseValidator, updateCourseValidator } from '#validators/course'
 import Chapter from '#models/chapter'
 import Subchapter from '#models/subchapter'
+import Lesson from '#models/lesson'
 
 export default class CoursesController {
 
@@ -15,20 +16,31 @@ export default class CoursesController {
   async getCourse({ params, response }: HttpContext) {
     try {
       const course = await Course.findOrFail(params.id)
-      const queryChapters = Chapter.query()
-          
+
+      const queryChapters = Chapter.query()          
       queryChapters.where('courseId', course.id)
       const chapters = await queryChapters
 
       const querySubchapters = Subchapter.query()
       querySubchapters.where('courseId', course.id)
-
       const subchapters = await querySubchapters
+
+      const queryLessons = Lesson.query()
+      queryLessons.where('courseId', course.id)
+      const lessons = await queryLessons
+      const lessonsWithoutData = lessons.map(lesson => {
+        const lessonObject = lesson.toJSON()
+        return {
+          ...lessonObject,
+          data: ''
+        }
+      })
 
       return response.ok({
         course,
         chapters,
-        subchapters
+        subchapters,
+        lessons: lessonsWithoutData
       })
     } catch (error) {
       return response.notFound({

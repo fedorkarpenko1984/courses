@@ -34,13 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IChapter, IChapterStructure } from '@repo/types';
+import type { IChapter, IChapterStructure, ISubchapter } from '@repo/types';
 import { computed, ref, watch } from 'vue'
 import type { TCourseChildEntity } from '@/types/courses';
 
 const props = defineProps<{
   type: TCourseChildEntity,
-  entity: null | IChapter
+  entity: null | IChapter | ISubchapter
 }>()
 
 const model = defineModel()
@@ -62,11 +62,13 @@ const createModalTitle = computed<string>(() => {
   if (props.type === 'chapter') {
     return `Редактирование раздела ${props.entity?.title}`
   }
+  if (props.type === 'subchapter') {
+    return `Редактирование подраздела ${props.entity?.title}`
+  }
   return ''
 })
 
 watch(props, (newProps) => {
-  console.log('newProps', newProps)
   if (newProps.entity) {
     title.value = newProps.entity.title
     status.value = Number(newProps.entity.isPublished)
@@ -75,16 +77,21 @@ watch(props, (newProps) => {
 
 const emit = defineEmits<{
   (e: 'save:chapter', payload: Pick<IChapter, 'title' | 'isPublished'>): void,
+  (e: 'save:subchapter', payload: Pick<IChapter, 'title' | 'isPublished'>): void,
 }>()
 
 const saveEntity = () => {
   if (props.type === 'chapter') {
-    if (props.entity) {
-      emit('save:chapter', {
-        title: title.value,
-        isPublished: Boolean(status.value)
-      })
-    }
+    emit('save:chapter', {
+      title: title.value,
+      isPublished: Boolean(status.value)
+    })
+  }
+  if (props.type === 'subchapter') {
+    emit('save:subchapter', {
+      title: title.value,
+      isPublished: Boolean(status.value)
+    })
   }
 }
 </script>

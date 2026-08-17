@@ -24,4 +24,9 @@ export interface ApiDefinition {
     update: typeof routes['subchapter.update']
     destroy: typeof routes['subchapter.destroy']
   }
+  lessons: {
+    store: typeof routes['lessons.store']
+    update: typeof routes['lessons.update']
+    destroy: typeof routes['lessons.destroy']
+  }
 }

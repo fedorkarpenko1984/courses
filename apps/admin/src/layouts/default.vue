@@ -1,5 +1,5 @@
 <template>
-  <div class="default-layout">
+  <a-layout>
     <a-layout-sider
       v-model:collapsed="collapsed"
       collapsible
@@ -17,7 +17,7 @@
         closable
       />
     </div>
-  </div>
+  </a-layout>
 </template>
 
 <script setup lang="ts">

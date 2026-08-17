@@ -35,6 +35,11 @@ const router = createRouter({
       component: () => import('@/pages/courses/edit.vue'),
     },
     {
+      path: '/courses/lesson/:id',
+      name: 'lesson-edit',
+      component: () => import('@/pages/courses/edit-lesson.vue'),
+    },
+    {
       path: '/users',
       name: 'users',
       component: () => import('@/pages/users.vue'),

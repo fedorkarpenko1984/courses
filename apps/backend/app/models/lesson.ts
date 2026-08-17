@@ -3,6 +3,7 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Course from '#models/course'
 import Chapter from '#models/chapter'
 import Subchapter from '#models/subchapter'
+import { DateTime } from 'luxon'
 
 export default class Lesson extends BaseModel {
   @column({ isPrimary: true })

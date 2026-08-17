@@ -18,12 +18,16 @@ export type ScannedRoutes = {
     'subchapter.store': { paramsTuple?: []; params?: {} }
     'subchapter.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'subchapter.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.store': { paramsTuple?: []; params?: {} }
+    'lessons.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   POST: {
     'access_tokens.store': { paramsTuple?: []; params?: {} }
     'course.create': { paramsTuple?: []; params?: {} }
     'chapters.store': { paramsTuple?: []; params?: {} }
     'subchapter.store': { paramsTuple?: []; params?: {} }
+    'lessons.store': { paramsTuple?: []; params?: {} }
   }
   GET: {
     'access_tokens.me': { paramsTuple?: []; params?: {} }
@@ -41,11 +45,13 @@ export type ScannedRoutes = {
     'course.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'chapters.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'subchapter.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   DELETE: {
     'course.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'chapters.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'subchapter.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
 }
 declare module '@adonisjs/core/types/http' {

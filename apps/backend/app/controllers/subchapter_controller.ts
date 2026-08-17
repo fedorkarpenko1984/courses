@@ -8,7 +8,6 @@ import { createSubchapterValidator, updateSubchapterValidator } from '#validator
 export default class SubchaptersController {
 
   async store({ request, response }: HttpContext) {
-    console.log('create subchapter')
     try {
       const data = await request.validateUsing(createSubchapterValidator)
       
@@ -48,8 +47,7 @@ export default class SubchaptersController {
         }
       }
 
-      console.log('currentChapterChildrens', currentChapterChildrens)
-      chapter. children = [...currentChapterChildrens, `sub${subchapter.id}`]
+      chapter.children = [...currentChapterChildrens, `sub${subchapter.id}`]
       await chapter.save()
       
       return response.created(subchapter)
@@ -80,26 +78,6 @@ export default class SubchaptersController {
       
       const data = await request.validateUsing(updateSubchapterValidator)
       
-      // Если меняется глава, проверяем её существование
-      if (data.chapterId && data.chapterId !== subchapter.chapterId) {
-        const chapter = await Chapter.find(data.chapterId)
-        if (!chapter) {
-          return response.notFound({
-            message: 'Глава не найдена'
-          })
-        }
-      }
-      
-      // Если меняется курс, проверяем его существование
-      if (data.courseId && data.courseId !== subchapter.courseId) {
-        const course = await Course.find(data.courseId)
-        if (!course) {
-          return response.notFound({
-            message: 'Курс не найден'
-          })
-        }
-      }
-      
       subchapter.merge(data)
       await subchapter.save()
       
@@ -122,18 +100,28 @@ export default class SubchaptersController {
   async destroy({ params, response }: HttpContext) {
     try {
       const subchapter = await Subchapter.find(params.id)
-      
+
       if (!subchapter) {
         return response.notFound({
           message: 'Подраздел не найден'
         })
       }
+
+      const chapter = await Chapter.findOrFail(subchapter.chapterId)
+
       
+      const chapterChildren = [...chapter.children]
+      const subchapterIndexInChildren = chapterChildren.findIndex(child => child === `sub${params.id}`)
+
+      chapterChildren.splice(subchapterIndexInChildren, 1)
+
+      chapter.children = chapterChildren
+
       await subchapter.delete()
+
+      chapter.save()
       
-      return response.ok({
-        message: 'Подраздел успешно удален'
-      })
+      return response.status(204)
     } catch (error) {
       console.error('Ошибка при удалении подраздела:', error)
       return response.internalServerError({

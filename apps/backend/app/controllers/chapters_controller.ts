@@ -63,11 +63,8 @@ export default class ChaptersController {
     const course = await Course.findOrFail(chapter.courseId)
     const currentCourseChapters = Array.isArray(course.chapters) ? course.chapters : []
     const chapterIndex = currentCourseChapters.findIndex(i => i === chapter.id)
-    console.log('chapterId', chapter.id)
-    console.log('chapterIndex', chapterIndex)
-    currentCourseChapters.splice(chapterIndex, 1)
 
-    console.log('currentCourseChapters', currentCourseChapters)
+    currentCourseChapters.splice(chapterIndex, 1)
 
     course.merge({
       ...course,

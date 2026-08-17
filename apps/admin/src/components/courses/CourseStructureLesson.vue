@@ -1,64 +1,58 @@
 <template>
-  <div class="course-structure-chapter">
-    <div class="course-structure-chapter__prefix">
-      подраздел
+  <div class="course-structure-lesson">
+    <div class="course-structure-lesson__prefix">
+      урок
     </div>
-    <div class="course-structure-chapter__content">
-      {{ subchapter.title }}
+    <div class="course-structure-lesson__content">
+      {{ lesson.title }}
       <div
         class="status"
-        :style="`background: ${ subchapter.isPublished ? 'rgb(101, 233, 134)' : 'grey'}`"
+        :style="`background: ${ lesson.isPublished ? 'rgb(101, 233, 134)' : 'grey'}`"
       >
-        {{ `${ subchapter.isPublished ? '' : 'не'}опубликован` }}
+        {{ `${ lesson.isPublished ? '' : 'не'}опубликован` }}
       </div>
       <div class="controls" @click.stop>
         <div
           style="color: lightseagreen"
-          @click="emit('edit:subchapter', { id: subchapter.id })"
+          @click="emit('edit:lesson', { id: lesson.id })"
         >
           <EditFilled />
         </div>
         <div
           style="color: red"
-          @click="emit('delete:subchapter', { id: subchapter.id })"
+          @click="emit('delete:lesson', { id: lesson.id })"
         >
           <DeleteOutlined />
         </div>
       </div>
     </div>
-      <slot />
-    <div class="actions">
-      <div class="add-lesson">
-        <div class="add-lesson__text">добавить урок</div>
-      </div>
-    </div>
+    <slot />
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { ISubchapter } from '@repo/types';
+import type { ILesson } from '@repo/types';
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue';
 const props = defineProps<{
-  subchapter: ISubchapter
+  lesson: ILesson
 }>()
 
 const emit = defineEmits<{
-  (e: 'delete:subchapter', payload: { id: number }): void
-  (e: 'edit:subchapter', payload: { id: number }): void
-  (e: 'create:lesson'): void
+  (e: 'delete:lesson', payload: { id: number }): void
+  (e: 'edit:lesson', payload: { id: number }): void
 }>()
 </script>
 
 <style scoped lang="scss">
-.course-structure-chapter {
-  width: 600px;
+.course-structure-lesson {
+  width: 500px;
   position: relative;
 
   &__content {
     display: flex;
     align-items: center;
-    height: 42px;
-    font-size: 18px;
+    height: 36px;
+    font-size: 14px;
     border: 1px solid rgb(204, 204, 204);
     padding: 0 16px;
     border-radius: 6px;
@@ -89,7 +83,7 @@ const emit = defineEmits<{
     position: absolute;
     left: 16px;
     top: -8px;
-    font-size: 10px;
+    font-size: 9px;
     background: white;
     padding: 1px 6px;
     z-index: 1;
@@ -98,19 +92,7 @@ const emit = defineEmits<{
     border-radius: 4px;
     text-transform: uppercase;
   }
-  .add-lesson {
-    position: relative;
-    font-size: 12px;
-    margin-top: 4px;
-    &__text {
-      background: #aaa;
-      padding: 2px 4px;
-      width: fit-content;
-      color: white;
-      border-radius: 0px 6px 6px 0px;
-    }
-    cursor: pointer;
-  }
+
   .actions {
     position: absolute;
     top: 8px;

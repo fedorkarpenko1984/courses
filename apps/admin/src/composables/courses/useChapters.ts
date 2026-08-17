@@ -26,7 +26,10 @@ export function useChapters(
       }
     )
     if (response.status === 201) {
-      courseStructure.value.push(response.data)
+      courseStructure.value.push({
+        ...response.data,
+        children: []
+      })
       addNotification({
         message: 'Раздел успешно добавлен!',
         type: 'success'

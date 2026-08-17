@@ -29,6 +29,7 @@ export default class LessonsController {
   async store({ request, response }: HttpContext) {
     try {
       const data = await request.validateUsing(createLessonValidator)
+      console.log('data', data)
       
       // Проверяем существование курса
       const course = await Course.find(data.courseId)
@@ -46,13 +47,6 @@ export default class LessonsController {
         })
       }
       
-      // Проверяем, что глава принадлежит курсу
-      if (chapter.courseId !== data.courseId) {
-        return response.badRequest({
-          message: 'Глава не принадлежит указанному курсу'
-        })
-      }
-      
       // Если указан subchapterId - проверяем его существование
       if (data.subchapterId) {
         const subchapter = await Subchapter.find(data.subchapterId)
@@ -61,36 +55,31 @@ export default class LessonsController {
             message: 'Подраздел не найден'
           })
         }
-        
-        // Проверяем, что подраздел принадлежит главе
-        if (subchapter.chapterId !== data.chapterId) {
-          return response.badRequest({
-            message: 'Подраздел не принадлежит указанной главе'
-          })
-        }
       }
       
       const lesson = await Lesson.create({
         ...data,
         data: data.data || null,
-        isPublished: data.isPublished || false
       })
-      
-      // Добавляем урок в children главы
-      // await chapter.addChild(`lesson${lesson.id}`)
-      
-      // Если есть subchapter - добавляем урок в его lessons
-      if (data.subchapterId) {
-        const subchapter = await Subchapter.find(data.subchapterId)
-        if (subchapter) {
-          const currentLessons = subchapter.lessons || []
-          if (!currentLessons.includes(lesson.id)) {
-            subchapter.lessons = [...currentLessons, lesson.id]
-            await subchapter.save()
+
+      let currentChapterChildrens: string[] = []
+    
+      if (chapter.children) {
+        if (Array.isArray(chapter.children)) {
+          currentChapterChildrens = chapter.children
+        } else if (typeof chapter.children === 'string') {
+          try {
+            const parsed = JSON.parse(chapter.children)
+            currentChapterChildrens = Array.isArray(parsed) ? parsed : []
+          } catch {
+            currentChapterChildrens = []
           }
         }
       }
-      
+
+      chapter.children = [...currentChapterChildrens, `les${lesson.id}`]
+      await chapter.save()      
+
       return response.created(lesson)
     } catch (error: any) {
       console.error('Ошибка при создании урока:', error)
