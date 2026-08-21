@@ -90,6 +90,12 @@ const routes = {
     tokens: [{"old":"/admin/subchapter/:id","type":0,"val":"admin","end":""},{"old":"/admin/subchapter/:id","type":0,"val":"subchapter","end":""},{"old":"/admin/subchapter/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['subchapter.destroy']['types'],
   },
+  'lessons.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/admin/lesson/:id',
+    tokens: [{"old":"/admin/lesson/:id","type":0,"val":"admin","end":""},{"old":"/admin/lesson/:id","type":0,"val":"lesson","end":""},{"old":"/admin/lesson/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['lessons.show']['types'],
+  },
   'lessons.store': {
     methods: ["POST"],
     pattern: '/admin/lesson',

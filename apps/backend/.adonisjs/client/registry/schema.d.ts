@@ -175,6 +175,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/subchapter_controller').default['destroy']>>>
     }
   }
+  'lessons.show': {
+    methods: ["GET","HEAD"]
+    pattern: '/admin/lesson/:id'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['show']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/lessons_controller').default['show']>>>
+    }
+  }
   'lessons.store': {
     methods: ["POST"]
     pattern: '/admin/lesson'

@@ -44,5 +44,5 @@ export interface ISubchapter extends ICourseChildBasic{
 export interface ILesson extends ICourseChildBasic {
   chapterId: number
   subchapterId?: number
-  data: string
+  data: string | null
 }

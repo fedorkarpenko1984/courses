@@ -1,9 +1,9 @@
 <template>
-  <div class="course-structure-chapter">
-    <div class="course-structure-chapter__prefix">
+  <div class="course-substructure-chapter">
+    <div class="course-substructure-chapter__prefix">
       подраздел
     </div>
-    <div class="course-structure-chapter__content">
+    <div class="course-substructure-chapter__content">
       {{ subchapter.title }}
       <div
         class="status"
@@ -26,9 +26,18 @@
         </div>
       </div>
     </div>
-      <slot />
+    <VueDraggable
+      v-model="subchapterLessonsStructure"
+      :animation="150"
+      class="course-substructure-chapter__lessons"
+      :disabled="isDragndropDisabled"
+      @start="startDraging"
+      @end="endDraging"
+    >
+      <slot :lessons="subchapterLessonsStructure" name="lessons" />
+    </VueDraggable>
     <div class="actions">
-      <div class="add-lesson">
+      <div class="add-lesson" @click="emit('create:lesson')">
         <div class="add-lesson__text">добавить урок</div>
       </div>
     </div>
@@ -36,23 +45,86 @@
 </template>
 
 <script lang="ts" setup>
-import type { ISubchapter } from '@repo/types';
+import type { ILesson, ISubchapter } from '@repo/types';
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue';
+import { onMounted, ref, watch } from 'vue';
+import { VueDraggable } from 'vue-draggable-plus'
+import { isArraysValuesEquel } from '@/utils';
+import { $fetch } from '@/helpers/myFetch';
+
 const props = defineProps<{
-  subchapter: ISubchapter
+  subchapter: ISubchapter,
+  lessons: ILesson[]
 }>()
+
+const subchapterLessonsStructure = ref<ILesson[]>([])
+
+const setLessonsStructure = () => {
+  const newLessonsStructure: ILesson[] = []
+  props.subchapter.lessons.forEach(lessonId => {
+    const lesson = props.lessons.find(les => les.id === lessonId)!
+    newLessonsStructure.push(lesson)
+  })
+  subchapterLessonsStructure.value = [...newLessonsStructure]
+}
+
+onMounted(() => {
+  setLessonsStructure()
+})
 
 const emit = defineEmits<{
   (e: 'delete:subchapter', payload: { id: number }): void
   (e: 'edit:subchapter', payload: { id: number }): void
   (e: 'create:lesson'): void
 }>()
+
+let previousSubchapterLessonsStructure: ILesson[] = []
+let isDragndropDisabled = ref<boolean>(false)
+
+watch(props, () => {
+  setLessonsStructure()
+})
+
+const startDraging = () => {
+  previousSubchapterLessonsStructure = [...subchapterLessonsStructure.value]
+}
+
+const endDraging = async () => {
+  const newSubhaptersLessonsrenOrder = subchapterLessonsStructure.value.map(lesson => lesson.id)
+  const previousSubchapterLessonsrenOrder = previousSubchapterLessonsStructure.map(lesson => lesson.id)
+  if (isArraysValuesEquel(previousSubchapterLessonsrenOrder, newSubhaptersLessonsrenOrder)) return
+  console.log('previousSubchapterChildrenOrder', previousSubchapterLessonsrenOrder)
+  console.log('newSubhaptersChildrenOrder', newSubhaptersLessonsrenOrder)
+  isDragndropDisabled.value = true
+  let response = null
+  try {
+    response = await $fetch.put<ISubchapter>(`/subchapter/${props.subchapter.id}`, {
+      ...props.subchapter,
+      lessons: newSubhaptersLessonsrenOrder,
+    })
+  } 
+  catch (error) {
+  } finally {
+    if (!response) {
+      subchapterLessonsStructure.value = [...previousSubchapterLessonsStructure]
+    }
+    isDragndropDisabled.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">
-.course-structure-chapter {
-  width: 600px;
+.course-substructure-chapter {
+  width: 700px;
   position: relative;
+  
+  &__lessons {
+    padding-left: 100px;
+    margin-top: 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
 
   &__content {
     display: flex;
@@ -63,6 +135,10 @@ const emit = defineEmits<{
     padding: 0 16px;
     border-radius: 6px;
     position: relative;
+
+    &:hover {
+      border-color: rgb(170, 171, 172); 
+    }
 
     .status {
       background: rgb(101, 233, 134);

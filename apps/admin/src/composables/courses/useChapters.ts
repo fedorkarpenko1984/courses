@@ -1,6 +1,6 @@
 import { $fetch } from "@/helpers/myFetch"
 import { isArraysValuesEquel } from "@/utils"
-import type { IChapter, IChapterStructure, ICourse, ISubchapter } from "@repo/types"
+import type { IChapter, ICourse, ISubchapter } from "@repo/types"
 import { type Ref, ref } from "vue"
 import { useNotificationsStore } from "@/stores/notificationsStore"
 
@@ -45,12 +45,25 @@ export function useChapters(
 
     if (response.status === 204) {
       const deleteddChapterIndex = courseStructure.value.findIndex(chapter => chapter.id === chapterId)!
-      console.log('deleteddChapterIndex', deleteddChapterIndex)
       courseStructure.value.splice(deleteddChapterIndex, 1)
       addNotification({
         message: `Раздел успешно удалён`,
         type: 'success'
       })
+    }
+  }
+
+  // редактирование раздела
+  const editChapter = async (newChapter: IChapter) => {
+    const response = await $fetch.put<IChapter>(`/chapter/${newChapter.id}`, newChapter)
+
+    if (response.status === 200) {
+      addNotification({
+        message: `Раздел успешно изменён`,
+        type: 'success'
+      })
+      const editedChapterIndex = courseStructure.value.findIndex(ch => ch.id === newChapter.id)!
+      courseStructure.value.splice(editedChapterIndex, 1, newChapter)
     }
   }
 
@@ -80,26 +93,6 @@ export function useChapters(
         courseStructure.value = [...previousChaptersStructure]
       }
       isChaptersDragndropDisabled.value = false
-    }
-  }
-
-  // редактирование раздела
-  const editChapter = async (newInfo: Pick<IChapter, 'title' | 'isPublished'>, chapter: IChapter) => {
-    const response = await $fetch.put<IChapter>(`/chapter/${chapter.id}`,
-      {
-        ...chapter,
-        ...newInfo
-      }
-    )
-    if (response.status === 200) {
-      addNotification({
-        message: `Раздел успешно изменён`,
-        type: 'success'
-      })
-      const editedChapterIndex = courseStructure.value.findIndex(chapter => chapter.id === chapter.id)!
-      const chapter = courseStructure.value.find(chapter => chapter.id === chapter.id)!
-      const newChapter: IChapter = { ...chapter, ...newInfo }
-      courseStructure.value.splice(editedChapterIndex, 1, newChapter)
     }
   }
 

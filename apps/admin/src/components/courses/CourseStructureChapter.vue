@@ -27,11 +27,14 @@
       </div>
     </div>
     <VueDraggable
-      v-model="chapterStructure"
+      v-model="chapterChildrenStructure"
       :animation="150"
       class="course-structure-chapter__children"
+      :disabled="isDragndropDisabled"
+      @start="startDraging"
+      @end="endDraging"
     >
-      <slot :chapterStructure="chapterStructure" name="children" />
+      <slot :chapterStructure="chapterChildrenStructure" name="children" />
     </VueDraggable>
     <div class="actions">
       <div
@@ -55,6 +58,8 @@ import type { IChapter, ILesson, ISubchapter } from '@repo/types';
 import { DeleteOutlined, EditFilled } from '@ant-design/icons-vue';
 import { onMounted, ref, watch } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus'
+import { isArraysValuesEquel } from "@/utils"
+import { $fetch } from '@/helpers/myFetch';
 
 interface ISubchapterAdmin extends ISubchapter {
   type: 'subchapter'
@@ -67,10 +72,10 @@ interface ILessonAdmin extends ILesson {
 const props = defineProps<{
   chapter: IChapter
   subchapters: ISubchapter[],
-  lessons: ILesson[]
+  lessons: ILesson[],
 }>()
 
-const chapterStructure = ref<Array<ISubchapterAdmin | ILessonAdmin>>([])
+const chapterChildrenStructure = ref<Array<ISubchapterAdmin | ILessonAdmin>>([])
 
 function setChapterStructure() {
   const newChapterStructure: Array<ISubchapterAdmin | ILessonAdmin> = []
@@ -84,7 +89,7 @@ function setChapterStructure() {
       newChapterStructure.push({ ...currentLesson, type: 'lesson'})
     }
   })
-  chapterStructure.value = [...newChapterStructure]
+  chapterChildrenStructure.value = [...newChapterStructure]
 }
 
 onMounted(() => {
@@ -99,9 +104,36 @@ const emit = defineEmits<{
 }>()
 
 watch(props, (newProps) => {
-  console.log('newProps', newProps)
   setChapterStructure()
 })
+
+let previousChapterChildrenStructure: Array<ISubchapterAdmin | ILessonAdmin> = []
+let isDragndropDisabled = ref<boolean>(false)
+
+const startDraging = () => {
+  previousChapterChildrenStructure = [...chapterChildrenStructure.value]
+}
+
+const endDraging = async () => {
+  const newChaptersChildrenOrder = chapterChildrenStructure.value.map(child => `${child.type === 'subchapter' ? 'sub' : 'les'}${child.id}`)
+  const previousChapterChildrenOrder = previousChapterChildrenStructure.map(child => `${child.type === 'subchapter' ? 'sub' : 'les'}${child.id}`)
+  if (isArraysValuesEquel(previousChapterChildrenOrder, newChaptersChildrenOrder)) return
+  isDragndropDisabled.value = true
+  let response = null
+  try {
+    response = await $fetch.put<IChapter>(`/chapter/${props.chapter.id}`, {
+      ...props.chapter,
+      children: newChaptersChildrenOrder,
+    })
+  } 
+  catch (error) {
+  } finally {
+    if (!response) {
+      chapterChildrenStructure.value = [...previousChapterChildrenStructure]
+    }
+    isDragndropDisabled.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">

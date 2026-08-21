@@ -22,13 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import type { IChapter, ISubchapter } from '@repo/types';
+import type { IChapter, ILesson, ISubchapter } from '@repo/types';
 import { computed } from 'vue'
 import type { TCourseChildEntity } from '@/types/courses';
 
 const props = defineProps<{
   type: TCourseChildEntity,
-  entity: null | IChapter | ISubchapter
+  entity: null | IChapter | ISubchapter | ILesson
 }>()
 
 const model = defineModel()
@@ -40,12 +40,16 @@ const deleteModalTitle = computed<string>(() => {
   if (props.type === 'subchapter') {
     return `Вы уверенны, что хотите удалить подраздел ${props.entity?.title}`
   }
+  if (props.type === 'lesson') {
+    return `Вы уверенны, что хотите удалить урок ${props.entity?.title}`
+  }
   return ''
 })
 
 const emit = defineEmits<{
   (e: 'delete:chapter'): void,
   (e: 'delete:subchapter'): void,
+  (e: 'delete:lesson'): void,
 }>()
 
 const deleteEntity = () => {
@@ -54,6 +58,9 @@ const deleteEntity = () => {
   }
   if (props.type === 'subchapter') {
     emit('delete:subchapter')
+  }
+  if (props.type === 'lesson') {
+    emit('delete:lesson')
   }
 }
 </script>

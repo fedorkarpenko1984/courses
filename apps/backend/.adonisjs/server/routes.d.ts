@@ -18,6 +18,7 @@ export type ScannedRoutes = {
     'subchapter.store': { paramsTuple?: []; params?: {} }
     'subchapter.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'subchapter.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'lessons.store': { paramsTuple?: []; params?: {} }
     'lessons.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'lessons.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -34,12 +35,14 @@ export type ScannedRoutes = {
     'course.get_all': { paramsTuple?: []; params?: {} }
     'course.get_course': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'chapters.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   HEAD: {
     'access_tokens.me': { paramsTuple?: []; params?: {} }
     'course.get_all': { paramsTuple?: []; params?: {} }
     'course.get_course': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'chapters.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+    'lessons.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
   PUT: {
     'course.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

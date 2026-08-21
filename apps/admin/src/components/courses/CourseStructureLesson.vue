@@ -20,7 +20,7 @@
         </div>
         <div
           style="color: red"
-          @click="emit('delete:lesson', { id: lesson.id })"
+          @click="emit('delete:lesson')"
         >
           <DeleteOutlined />
         </div>
@@ -38,14 +38,14 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'delete:lesson', payload: { id: number }): void
   (e: 'edit:lesson', payload: { id: number }): void
+  (e: 'delete:lesson'): void
 }>()
 </script>
 
 <style scoped lang="scss">
 .course-structure-lesson {
-  width: 500px;
+  width: 700px;
   position: relative;
 
   &__content {

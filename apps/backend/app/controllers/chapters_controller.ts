@@ -46,8 +46,7 @@ export default class ChaptersController {
     const chapter = await Chapter.findOrFail(params.id)
     const data = request.only([
       'title',
-      'subchapters',
-      'lessons',
+      'children',
       'isPublished'
     ])
     

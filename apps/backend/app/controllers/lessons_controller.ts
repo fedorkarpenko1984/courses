@@ -6,7 +6,22 @@ import Chapter from '#models/chapter'
 import Subchapter from '#models/subchapter'
 import { createLessonValidator, updateLessonValidator } from '#validators/lesson'
 
+function getCHapterChildren(children: string | string[] | null | undefined): string[] {
+  if (Array.isArray(children)) {
+    return children
+  } else if (typeof children === 'string') {
+    try {
+      const parsed = JSON.parse(children)
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+  return []
+}
+
 export default class LessonsController {
+  // инфо об уроке
   async show({ params, response }: HttpContext) {
     try {
       const lesson = await Lesson.find(params.id)
@@ -26,10 +41,10 @@ export default class LessonsController {
     }
   }
 
+  // создать
   async store({ request, response }: HttpContext) {
     try {
       const data = await request.validateUsing(createLessonValidator)
-      console.log('data', data)
       
       // Проверяем существование курса
       const course = await Course.find(data.courseId)
@@ -48,8 +63,9 @@ export default class LessonsController {
       }
       
       // Если указан subchapterId - проверяем его существование
+      let subchapter = null
       if (data.subchapterId) {
-        const subchapter = await Subchapter.find(data.subchapterId)
+        subchapter = await Subchapter.find(data.subchapterId)
         if (!subchapter) {
           return response.notFound({
             message: 'Подраздел не найден'
@@ -62,23 +78,16 @@ export default class LessonsController {
         data: data.data || null,
       })
 
-      let currentChapterChildrens: string[] = []
-    
-      if (chapter.children) {
-        if (Array.isArray(chapter.children)) {
-          currentChapterChildrens = chapter.children
-        } else if (typeof chapter.children === 'string') {
-          try {
-            const parsed = JSON.parse(chapter.children)
-            currentChapterChildrens = Array.isArray(parsed) ? parsed : []
-          } catch {
-            currentChapterChildrens = []
-          }
-        }
+      if (!data.subchapterId) {
+        let currentChapterChildrens = getCHapterChildren(chapter.children)
+        chapter.children = [...currentChapterChildrens, `les${lesson.id}`]
+        await chapter.save()      
       }
-
-      chapter.children = [...currentChapterChildrens, `les${lesson.id}`]
-      await chapter.save()      
+      if (data.subchapterId && subchapter) {
+        const newLessons = subchapter.lessons || []
+        subchapter.lessons = [...newLessons, lesson.id]
+        subchapter.save()
+      }
 
       return response.created(lesson)
     } catch (error: any) {
@@ -96,9 +105,7 @@ export default class LessonsController {
     }
   }
 
-  /**
-   * Обновить урок
-   */
+  // изменить
   async update({ params, request, response }: HttpContext) {
     try {
       const lesson = await Lesson.find(params.id)
@@ -135,9 +142,7 @@ export default class LessonsController {
     }
   }
 
-  /**
-   * Удалить урок
-   */
+  // удалить
   async destroy({ params, response }: HttpContext) {
     try {
       const lesson = await Lesson.find(params.id)
@@ -147,125 +152,34 @@ export default class LessonsController {
           message: 'Урок не найден'
         })
       }
+
+      await lesson.delete()
       
-      // Удаляем урок из children главы
-      // const chapter = await Chapter.find(lesson.chapterId)
-      // if (chapter) {
-      //   const children = chapter.getChildrenArray()
-      //   chapter.children = children.filter(id => id !== `lesson${lesson.id}`)
-      //   await chapter.save()
-      // }
+      if (!lesson.subchapterId) {
+        const chapter = await Chapter.find(lesson.chapterId)
+        if (chapter) {
+          const children = getCHapterChildren(chapter.children)
+          chapter.children = children.filter(child => child !== `les${lesson.id}`)
+          await chapter.save()
+        }
+      }
       
-      // Удаляем урок из lessons подраздела
-      // if (lesson.subchapterId) {
-      //   const subchapter = await Subchapter.find(lesson.subchapterId)
-      //   if (subchapter) {
-      //     subchapter.lessons = (subchapter.lessons || []).filter(
-      //       id => id !== lesson.id
-      //     )
-      //     await subchapter.save()
-      //   }
-      // }
       
-      // await lesson.delete()
-      
-      return response.ok({
-        message: 'Урок успешно удален'
-      })
+      if (lesson.subchapterId) {
+        const subchapter = await Subchapter.find(lesson.subchapterId)
+        if (subchapter) {
+          subchapter.lessons = (subchapter.lessons || []).filter(
+            id => id !== lesson.id
+          )
+          await subchapter.save()
+        }
+      }
+            
+      return response.status(204)
     } catch (error) {
       console.error('Ошибка при удалении урока:', error)
       return response.internalServerError({
         message: 'Ошибка при удалении урока'
-      })
-    }
-  }
-
-  /**
-   * Получить данные урока
-   */
-  async getData({ params, response }: HttpContext) {
-    try {
-      const lesson = await Lesson.find(params.id)
-      
-      if (!lesson) {
-        return response.notFound({
-          message: 'Урок не найден'
-        })
-      }
-      
-      return response.ok(lesson.data)
-    } catch (error) {
-      console.error('Ошибка при получении данных урока:', error)
-      return response.internalServerError({
-        message: 'Ошибка при получении данных урока'
-      })
-    }
-  }
-
-  /**
-   * Обновить данные урока
-   */
-  async updateData({ params, request, response }: HttpContext) {
-    try {
-      const lesson = await Lesson.find(params.id)
-      
-      if (!lesson) {
-        return response.notFound({
-          message: 'Урок не найден'
-        })
-      }
-      
-      const data = request.only(['data'])
-      
-      if (data.data) {
-        if (typeof data.data === 'object') {
-          lesson.data = JSON.stringify(data.data)
-        } else {
-          lesson.data = data.data
-        }
-        await lesson.save()
-      }
-      
-      return response.ok(lesson.data)
-    } catch (error) {
-      console.error('Ошибка при обновлении данных урока:', error)
-      return response.internalServerError({
-        message: 'Ошибка при обновлении данных урока'
-      })
-    }
-  }
-
-  /**
-   * Опубликовать/скрыть урок
-   */
-  async togglePublish({ params, request, response }: HttpContext) {
-    try {
-      const lesson = await Lesson.find(params.id)
-      
-      if (!lesson) {
-        return response.notFound({
-          message: 'Урок не найден'
-        })
-      }
-      
-      const { isPublished } = request.only(['isPublished'])
-      
-      if (isPublished !== undefined) {
-        lesson.isPublished = isPublished
-        await lesson.save()
-      } else {
-        lesson.isPublished = !lesson.isPublished
-        await lesson.save()
-      }
-      
-      return response.ok({
-        message: `Урок ${lesson.isPublished ? 'опубликован' : 'скрыт'}`,
-        isPublished: lesson.isPublished
-      })
-    } catch (error) {
-      console.error('Ошибка при изменении статуса урока:', error)
-      return response.internalServerError({
-        message: 'Ошибка при изменении статуса урока'
       })
     }
   }

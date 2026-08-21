@@ -1,7 +1,7 @@
 import { $fetch } from "@/helpers/myFetch"
 import type { IChapter, ISubchapter } from "@repo/types"
 import { useNotificationsStore } from "@/stores/notificationsStore"
-import { ref, type Ref } from "vue"
+import { type Ref } from "vue"
 
 const { addNotification } = useNotificationsStore()
 
@@ -56,7 +56,6 @@ export function useSubchapters(courseStructure: Ref<IChapter[]>, subchapters: Re
   const deleteSubchapter = async (subchapter: ISubchapter) => {
     const response = await $fetch.delete(`/subchapter/${subchapter.id}`)
 
-    console.log(response)
     if (response.status === 204) {
       const deletedSubchapterIndexInSubchapters = subchapters.value.findIndex(subch => subch.id === subchapter.id)!
       const parentChapter = courseStructure.value.find(chapter => chapter.id === subchapter.chapterId)!

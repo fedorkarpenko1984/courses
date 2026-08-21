@@ -41,7 +41,8 @@ router.group(() => {
     .use(middleware.auth({ guards: ['admin'] }))
 
   router  
-    .group(() => {      
+    .group(() => {
+      router.get('/:id', [controllers.Lessons, 'show'])
       router.post('/', [controllers.Lessons, 'store'])
       router.put('/:id', [controllers.Lessons, 'update'])
       router.delete('/:id', [controllers.Lessons, 'destroy'])
