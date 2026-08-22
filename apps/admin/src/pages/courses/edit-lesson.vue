@@ -10,18 +10,24 @@
     <div class="lesson-page__blocks">
       <h3 v-if="!lessonBlocks.length">Список блоков пуст</h3>
       <div
-        v-for="block in lessonBlocks"
+        v-for="block, index in lessonBlocks"
         :key="block.id"
       >
         <LessonBlockText
           v-if="block.type === 'text'"
           :block="block"
           :initial="block.content"
+          :index="index"
           @update="($event) => { textBlockUpdateHandler($event, block.id) }"
+          @delete="deleteBlock"
         />
         <LessonBlockVideo
           v-if="block.type === 'video'"
           :block="block"
+          :initial="formatVideoContent(block.content)"
+          :index="index"
+          @update="($event) => updateVideoBlock($event, block.id)"
+          @delete="deleteBlock"
         />
       </div>
     </div>
@@ -41,6 +47,7 @@
     </div>
     <a-button
       type="primary"
+      size="large"
       class="lesson-page__save-lesson"
       @click="saveLesson"
     >
@@ -118,19 +125,47 @@ const addBlock = () => {
   if (newBlock) lessonBlocks.value.push(newBlock)
 }
 
+const isBlocksValid = () => {
+  return lessonBlocks.value.reduce((result, item) => {
+    if (!item.content || item.content === 'invalid') {
+      return false
+    }
+    return result
+  }, true)
+}
+
 const saveLesson = async () => {
-  const response = await $fetch.put(`/lesson/${lesson?.id}`, {
-    ...lesson,
-    title: lessonTitle.value,
-    data: JSON.stringify(lessonBlocks.value)
-  })
-  console.log(response)
+  if (!isBlocksValid()) return
+  console.log('is valid') 
+  // const response = await $fetch.put(`/lesson/${lesson?.id}`, {
+  //   ...lesson,
+  //   title: lessonTitle.value,
+  //   data: JSON.stringify(lessonBlocks.value)
+  // })
+  // console.log(response)
 }
 
 const textBlockUpdateHandler = (newContent: string, id: string) => {
   const block = lessonBlocks.value.find(block => block.id === id)
   if (block) block.content = newContent
 }
+
+const updateVideoBlock = (newContent: File | 'invalid', id: string) => {
+  console.log('newContent', newContent)
+  console.log('id', id)
+  const block = lessonBlocks.value.find(block => block.id === id)
+  if (block) block.content = newContent
+}
+
+const formatVideoContent = (content: string | File): string => typeof content === 'string' ? content : content.name
+
+const deleteBlock = (id: string) => {
+  const blockIndex = lessonBlocks.value.findIndex(block => block.id === id)
+  if (blockIndex !== -1) {
+    lessonBlocks.value.splice(blockIndex, 1)
+  }
+}
+
 </script>
 
 <style scoped lang="scss">
@@ -157,7 +192,7 @@ const textBlockUpdateHandler = (newContent: string, id: string) => {
   }
 
   &__save-lesson {
-    margin-top: 20px;
+    margin-top: 40px;
   }
 }
 </style>
